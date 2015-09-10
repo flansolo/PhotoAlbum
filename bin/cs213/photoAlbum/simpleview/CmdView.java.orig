@@ -1,0 +1,450 @@
+package cs213.photoAlbum.simpleview;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+
+import cs213.photoAlbum.control.Control;
+import cs213.photoAlbum.model.Photo;
+import cs213.photoAlbum.model.SessionPersistence;
+import cs213.photoAlbum.model.User;
+
+
+public class CmdView {
+	public static void main(String[] args) throws IOException, ClassNotFoundException, ParseException{
+		Control ctrl= new Control();
+		Scanner sc= new Scanner(System.in);
+		String line=sc.nextLine();
+		StringTokenizer st= new StringTokenizer(line);
+		String userid="";
+		String username="";
+		String name=null;
+		String filename=null;
+		String caption=null;
+		String albumname=null;
+		String oldalbumname=null;
+		String newalbumname=null;
+		String tagtype=null;
+		String tagvalue = null;
+		String startdate=null;
+		String enddate=null;
+	
+		
+
+
+while(!line.isEmpty()){	
+		while(st.hasMoreTokens()) {
+			String entry = st.nextToken();
+			
+	if(entry.equals("listusers")){
+			
+				ctrl.listUsers();
+				line=sc.nextLine();
+				st= new StringTokenizer(line);
+				break;
+			
+		}
+		
+		else	if(entry.equals("adduser")){
+			
+			if(st.hasMoreTokens()){
+				userid=st.nextToken();
+				
+				if(st.hasMoreTokens()){
+
+					while(st.hasMoreTokens()){
+					username=username+" "+st.nextToken();
+					if(username.charAt(username.length()-1)=='\"'){
+						break;}
+					}
+					
+
+					username=username.substring(2, username.length()-1);
+
+			
+					
+					if(st.hasMoreTokens()){
+						System.out.println("error: invalid command 2");
+						break;
+					}else{
+						ctrl.addUser(userid,username);
+						line=sc.nextLine();
+						st= new StringTokenizer(line);
+						break;
+						
+					}
+
+
+				}else{
+					System.out.println("error: invalid command 3");
+					break;
+				}
+			}else{
+				System.out.println("error: invalid command 4");
+				break;
+			}
+		}
+		
+		else	if(entry.equals("deleteuser")){
+			if(st.hasMoreTokens()){
+				userid=st.nextToken();
+
+				if(st.hasMoreTokens()){
+					System.out.println("error: invalid command 5");
+					break;
+				}else{
+
+					ctrl.deleteUser(userid);
+					line=sc.nextLine();
+					st= new StringTokenizer(line);
+					break;
+				}
+			}
+			}
+		
+		else	if(entry.equals("login")){
+			if(st.hasMoreTokens()){
+				userid=st.nextToken();
+				ctrl.loginUser(userid);
+				System.out.println(ctrl.getUser().userName);
+				line=sc.nextLine();
+				st= new StringTokenizer(line);
+				break;
+				
+			
+			}else{
+				System.out.println("error: invalid command 8");
+				break;
+			}
+		}
+		
+		else if(entry.equals("createAlbum")){
+	if(st.hasMoreTokens()){
+		name=st.nextToken();
+		name=name.substring(1,name.length()-1);
+		
+		
+		if(!ctrl.getUser().albumlist.containsKey(name))
+		{
+			
+		System.out.println("created album for user:" + ctrl.getUser().userName);
+		}
+		ctrl.getUser().createAlbum(name);
+		line=sc.nextLine();
+		st= new StringTokenizer(line);
+		break;
+		
+	}else{
+		System.out.println("error: invalid command 10");
+		break;
+	}
+}
+
+		else if(entry.equals("deleteAlbum")){
+	if(st.hasMoreTokens()){
+		name=st.nextToken();
+		name=name.substring(1,name.length()-1);
+		if(st.hasMoreTokens()){
+			System.out.println("error: invalid command 11");
+			break;
+		}else{
+			ctrl.getUser().deleteAlbum(name);
+			line=sc.nextLine();
+			st= new StringTokenizer(line);
+			break;
+		}
+	}else{
+		System.out.println("error: invalid command 12");
+		break;
+	}
+}
+		
+		else if(entry.equals("listAlbums")){
+	if(st.hasMoreTokens()){
+		System.out.println("error: invalid command 13");
+		break;
+	}else{
+		ctrl.getUser().listAllAlbums();
+		line=sc.nextLine();
+		st= new StringTokenizer(line);
+		break;
+	}
+}
+
+		else if(entry.equals("listPhotos")){
+	if(st.hasMoreTokens()){
+		name=st.nextToken();
+		name=name.substring(1,name.length());
+		if(st.hasMoreTokens()){
+			System.out.println("error: invalid command 14");
+			break;
+		}else{
+			ctrl.getUser().albumlist.get(name).listPhotos();
+			line=sc.nextLine();
+			st= new StringTokenizer(line);
+			break;
+		}
+	}else{
+		System.out.println("error: invalid command 15");
+		break;
+	} 
+}
+
+
+		else if(entry.equals("addPhoto")){
+	if(st.hasMoreTokens()){
+		filename=st.nextToken();
+		filename=filename.substring(1,filename.length());
+		if(st.hasMoreTokens()){
+			caption=st.nextToken();
+			caption=caption.substring(1,caption.length());
+			if(st.hasMoreTokens()){
+				albumname=st.nextToken();
+				albumname=albumname.substring(1,albumname.length());
+				if(st.hasMoreTokens()){
+					System.out.println("error: invalid command 16");
+					break;
+				}else{
+					ctrl.getUser().albumlist.get(albumname).addPhoto(filename, caption);
+					line=sc.nextLine();
+					st= new StringTokenizer(line);
+					break;
+				}
+			}else{
+				System.out.println("error: invalid command 17");
+				break;
+			}
+		}else{
+			System.out.println("error: invalid command 18");
+			break;
+		}
+	}else{
+		System.out.println("error: invalid command 19");
+		break;
+	}
+}
+
+		else if(entry.equals("movePhoto")){
+	if(st.hasMoreTokens()){
+		filename=st.nextToken();
+		filename=filename.substring(1,filename.length());
+		if(st.hasMoreTokens()){
+			oldalbumname=st.nextToken();
+			oldalbumname=oldalbumname.substring(1,oldalbumname.length());
+			if(st.hasMoreTokens()){
+				newalbumname=st.nextToken();
+				newalbumname=newalbumname.substring(1,newalbumname.length());
+				if(st.hasMoreTokens()){
+					System.out.println("error: invalid command 20");
+					break;
+				}else{
+					ctrl.movePhoto(filename, oldalbumname, newalbumname);
+					line=sc.nextLine();
+					st= new StringTokenizer(line);
+					break;
+				}
+			}else{
+				System.out.println("error: invalid command 21");
+				break;
+			}
+		}else{
+			System.out.println("error: invalid command 22");
+			break;
+		}
+	}else{
+		System.out.println("error: invalid command 23");
+		break;
+	}
+}
+		
+		
+		else if(entry.equals("removePhoto")){
+	if(st.hasMoreTokens()){
+		filename=st.nextToken();
+		filename=filename.substring(1,filename.length());
+		if(st.hasMoreTokens()){
+			albumname=st.nextToken();
+			albumname=albumname.substring(1,albumname.length());
+			if(st.hasMoreTokens()){
+				System.out.println("error: invalid command 24");
+				break;
+			}else{
+				ctrl.getUser().albumlist.get(albumname).removePhotoFromAlbum(filename);
+				line=sc.nextLine();
+				st= new StringTokenizer(line);
+				break;
+			}
+		}else{
+			System.out.println("error: invalid command 25 ");
+			break;
+		}
+	}else{
+		System.out.println("error: invalid command 26");
+		break;
+	}
+}
+
+		else if(entry.equals("addTag")){
+	if(st.hasMoreTokens()){
+		filename=st.nextToken();
+		filename=filename.substring(1,filename.length());
+		if(st.hasMoreTokens()){
+			String[] temp=st.nextToken().split(":");
+			tagtype=temp[0];
+			tagvalue=temp[1];
+			tagvalue=tagvalue.substring(1,tagvalue.length());
+			if(st.hasMoreTokens()){
+				System.out.println("error: invalid command 27");
+				break;
+			}else{
+				
+				Photo tempp= ctrl.getPhoto(filename);
+					tempp.addTag(tagtype, tagvalue);
+					line=sc.nextLine();
+					st= new StringTokenizer(line);
+					break;
+	
+			}
+		}else{
+			System.out.println("error: invalid command 28");
+			break;
+		}
+	}else{
+		System.out.println("error: invalid command 29");
+		break;
+	}
+}
+
+		else if(entry.equals("deleteTag")){
+	if(st.hasMoreTokens()){
+		filename=st.nextToken();
+		filename=filename.substring(1,filename.length());
+		if(st.hasMoreTokens()){
+			String[] temp=st.nextToken().split(":");
+			tagtype=temp[0];
+			tagvalue=temp[1];
+			tagvalue=tagvalue.substring(1,tagvalue.length());
+			if(st.hasMoreTokens()){
+				System.out.println("error: invalid command 30");
+				break;
+			}else{
+				Photo tempp= ctrl.getPhoto(filename);
+					tempp.deleteTag(tagtype, tagvalue);
+					line=sc.nextLine();
+					st= new StringTokenizer(line);
+					break;
+	
+			}
+		}else{
+			System.out.println("error: invalid command 31");
+			break;
+		}
+	}else{
+		System.out.println("error: invalid command 32");
+		break;
+	}
+}
+		
+		else if(entry.equals("listPhotoInfo")){
+	if(st.hasMoreTokens()){
+		filename=st.nextToken();
+		filename=filename.substring(1, filename.length());
+		if(st.hasMoreTokens()){
+			System.out.println("error: invalid command 33");
+			break;
+		}else{
+			ctrl.getPhoto(filename).listPhotoInfo();
+			line=sc.nextLine();
+			st= new StringTokenizer(line);
+			break;
+			
+		}
+	}else{
+		System.out.println("error: invalid command 34");
+		break;
+	}
+}
+
+		else if(entry.equals("getPhotosByDate")){
+	if(st.hasMoreTokens()){
+		DateFormat df=new SimpleDateFormat("mm/dd/yyyy");
+		startdate=st.nextToken();
+		Date stdate=df.parse(startdate);
+		if(st.hasMoreTokens()){
+			enddate=st.nextToken();
+			Date endate=df.parse(enddate);
+			if(st.hasMoreTokens()){
+				System.out.println("error: invalid command 35");
+				break;
+			}else{
+				ctrl.getPhotosByDate(stdate, endate);
+				line=sc.nextLine();
+				st= new StringTokenizer(line);
+				break;
+			}
+		}else{
+			System.out.println("error: invalid command 36");
+			break;
+		}
+	}else{
+		System.out.println("error: invalid command 37");
+		break;
+	}
+}
+
+		else if(entry.equals("getPhotosByTag")){
+	if(st.hasMoreTokens()){
+		System.out.println("dog");
+		String searchstring=st.nextToken();
+		String[] temp= searchstring.split(":");
+		if(st.hasMoreTokens()){
+			System.out.println("error: invalid command 38");
+			break;
+		}else{
+			if(temp.length==1){
+				tagvalue=temp[0];
+			}else if(temp.length==2){
+				tagtype=temp[0];
+				tagvalue=temp[1];
+			}else{
+				System.out.println("error: invalid command 39");
+				break;
+			}
+			ctrl.getPhotosByTag(tagtype,tagvalue,searchstring);
+			line=sc.nextLine();
+			st= new StringTokenizer(line);
+			break;
+		}
+
+	}else{
+		System.out.println("error: invalid command 40");
+		break;
+	}
+	
+}
+
+		else if(entry.equals("logout")){
+			if(st.hasMoreTokens()){
+				System.out.println("error: invalid command 41");
+				break;
+			}else{
+	ctrl.logoutUser();
+	line=sc.nextLine();
+	st= new StringTokenizer(line);
+	break;
+			}
+}
+		
+		
+		}
+}
+	}
+}
+	
+
+

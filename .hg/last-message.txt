@@ -1,0 +1,1 @@
+fixed all command line errors, should be fully functional now

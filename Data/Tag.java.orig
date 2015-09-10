@@ -1,0 +1,30 @@
+package cs213.photoAlbum.model;
+/**
+ * 
+ * @author Bill Baker
+ *
+ */
+
+public class Tag {
+	public String tagType;
+	
+	public String tagValue;
+	
+	public Tag(String tagType, String tagValue){
+		this.tagType=tagType;
+		this.tagValue=tagValue;
+	}
+	
+	public String toString()
+	{
+		return this.tagType + ":" + this.tagValue;
+	}
+	
+	public boolean equals (Object object)
+	{
+		if(object instanceof Tag && this.tagType == ((Tag)object).tagType && this.tagValue == ((Tag)object).tagValue)
+		{		return true;  
+		}
+		return false;
+	}
+}

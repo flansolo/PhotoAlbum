@@ -1,0 +1,120 @@
+package cs213.photoAlbum.model;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import cs213.photoAlbum.util.ALStack;
+/**
+ * 
+ * @author Tian Qi Xiong
+ *
+ */
+
+public class Album {
+	/**
+	 * albumName - name of album
+	 * photolist - hashmap (key=file name of photo, 
+	 * value=Photo object)
+	 * storing photos in album
+	 */
+	String albumName;
+	public HashMap<String,Photo> photolist;
+	ALStack<Photo> photostack;
+	Calendar startDate;
+	Calendar endDate;
+	
+/**
+ * constructor creating new instantiation of Album with album name	
+ * given by user input
+ * @param albumName - name of album, a single user may not have duplicate
+ * album names
+ */
+public Album(String albumName){
+	this.albumName=albumName;
+}
+
+/**
+ * checks if another album is same/identical to this album
+ * @param album1- compares with this album
+ * @return true if albums are identical, false if not
+ */
+public boolean identicalAlbums(Album album1){
+	if(equals(album1)){
+		return true;
+	}
+	return false;
+}
+
+/** 
+ * removes photo from specific album OR
+ * advises photo not in album
+ * @param photo - photo being removed
+ * @param album - album photo is being removed from
+
+ */
+public void removePhotoFromAlbum (Photo photo) {
+	if(!photolist.containsValue(photo)){
+		System.out.print("Photo is not in album");
+		return;
+	}
+	photolist.remove(photo);
+	photostack.pop();
+	if(photolist.isEmpty()){
+		endDate=null;
+	}else{
+		Photo temp=photostack.pop();
+		endDate=temp.dateTime;
+		photostack.push(temp);
+	}
+}
+
+/**
+ * lists all photos in album
+ * @param album - gets album from user
+ * 
+ */
+public void listPhotos () {
+	if(photolist.isEmpty()){
+		System.out.println("No photos in this album");
+		return;
+	}
+	for(Entry<String, Photo> entry: photolist.entrySet()){
+		System.out.println("Photos for album "+albumName+":\n"+
+		entry.getKey() +"-"+ entry.getValue().dateTime); 
+	}
+}
+
+/**
+ * adds photo with fileName,caption,and calendar date to album, or indicates no photo exists or that
+ * photo already exists in album
+ * @param fileName - name of photo
+ * @param caption - caption of photo
+ * @param album - album photo is being added to
+ * 
+ */
+public void addPhoto (String fileName, String caption) {
+	if(photolist.containsKey(fileName)){
+		System.out.print("Photo already exists in album");
+		return;
+	}
+	
+	Photo temp= new Photo(fileName,caption,Calendar.getInstance());
+	temp.dateTime.set(Calendar.MILLISECOND,0);
+	temp.inalbum.add(albumName);
+	photolist.put(fileName, temp);
+	if(photolist.size()==1){
+		startDate=temp.dateTime;
+		endDate=temp.dateTime;
+	}else{
+		endDate=temp.dateTime;
+	}
+	photostack.push(temp);
+	
+}
+
+
+
+
+
+}
